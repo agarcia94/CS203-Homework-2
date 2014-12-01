@@ -1,70 +1,66 @@
-//go ahead and put the appropriate package
-class Point extends GeometricObject {
-	int id;
-	double x, y;
+package hw3;
 
-	public Point(int id, double x, double y) {
-		this.id = id;
-		this.x = x;
-		this.y = y;
-	}
+import java.util.ArrayList;
 
-	public void drawLine(Point other) {
-		StdDraw.line(this.x, this.y, other.x, other.y);
-	}
 
-	public Point(String line) {
-		String[] cols = line.split("\\s+");
-		this.id = Integer.parseInt(cols[0]);
-		this.x = Double.parseDouble(cols[1]);
-		this.y = Double.parseDouble(cols[2]);
-	}
 
-	public Point(String line, boolean b) {
-        // write this construct such it takes a string that begins
-        // with "<node ... " and extract its x, y values;
-		if(b == true){	
-			this.id = Integer.parseInt(OSM.extractStringFromVal(line, "id"));  //you needed to update the instance variables
-			this.x = Double.parseDouble(OSM.extractStringFromVal(line, "lat")); //you needed to update the instance variables
-			this.y = Double.parseDouble(OSM.extractStringFromVal(line, "lon")); //you needed to update the instance variables
-			
-			//you were using local variables such as double x or double y, which would've never updated the points' x,y, and id
-		
-		}
+public class Point extends GeometricObject {
+    long id;
+    double x, y;
+    ArrayList<Segment> edges = new ArrayList<Segment>();
+    ArrayList<Point> neighborPoints=new ArrayList<Point>();
+    boolean hasVisited= false;
+
+    public Point() { }
+
+    public Point(long id, double x, double y) {
+        this.id = id; this.x = x; this.y = y;
     }
-	
-	
-	public void draw() {
-		StdDraw.filledRectangle(x / 1000, y / 1000, 0.01, 0.01);
-	}
 
-	public void rescaleX() {   //hardcoding the oldmax and oldmin values might not work. Use John's Ys(), Yr() methods 
-		//for example, the ones he gave us for lab6. Those methods use the Boundaries class, which also helps when you're 
-		//reading from the OSM file. Check out the comments I gave you in the readOSMFormat method.
-		
-		
+    public void drawLine(Point other) {
+        // maybe easier to draw a line between other and me...
+    }
+
+    double Xr() { return x; }
+    double Yr() { return y; }
+
+    double Xs() { 
+//    	double oldmax = Boundaries.xmax;
+//		double oldmin = Boundaries.xmin;
+//		double newmax = 1.0;
+//		double newmin = 0.0;
+//
+//		return this.x = Math.abs(((x - oldmin) * newmax) / oldmax) + newmin;
+    	return Math.abs((Xr() - Boundaries.xmin) / (Boundaries.xmax - Boundaries.xmin));
+    }
+
+    double Ys() { 
+//    	double oldmax = Boundaries.ymax;
+//		double oldmin = Boundaries.ymin;
+//		double newmax = 1.0;
+//		double newmin = 0.0;
+//		return this.y = Math.abs(((y - oldmin) * newmax) / oldmax) + newmin;
+//		return Math.abs((Yr()- Boundaries.ymin)/(Boundaries.ymax - Boundaries.ymin));
+    	return  Math.abs((Yr() - Boundaries.ymin) / (Boundaries.ymax - Boundaries.ymin)); 
+    	
+    }
+
+    public void rescaleX() {
 		// does not show up on map
-		double oldmax = 1000;
-		double oldmin = 0.0;
-		double newmax = 1.0;
-		double newmin = 0.0;
-
-		this.x = ((x - oldmin) * newmax) / oldmax + newmin;
-		setX(this.x);
+		
 		// this.x /= 1000;
 
 	}
 
+	private void setX(double x2) {
+		// TODO Auto-generated method stub
+		this.x = x2;
+	}
+
 	public void rescaleY() {
-		//hardcoding the oldmax and oldmin values might not work. Use John's Ys(), Yr() methods 
-		//for example, the ones he gave us for lab6. Those methods use the Boundaries class, which also helps when you're 
-		//reading from the OSM file. Check out the comments I gave you in the readOSMFormat method.
-		
-		
-		
 		// does not show up on map
-		double oldmax = 1000;
-		double oldmin = 0.0;
+		double oldmax = Boundaries.ymax;
+		double oldmin = Boundaries.ymin;
 		double newmax = 1.0;
 		double newmin = 0.0;
 		this.y = ((y - oldmin) * newmax) / oldmax + newmin;
@@ -73,36 +69,71 @@ class Point extends GeometricObject {
 		// this.y /= 1000;
 
 	}
-
-	public void setId(int id) {
-		this.id = id;
+    
+    
+    
+    private void setY(double y2) {
+		// TODO Auto-generated method stub
+		this.y = y2;
 	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
+	public Point(String line) {
+    }
 
-	public void setY(double y) {
-		this.y = y;
-	}
+    public Point(String line, boolean isOSM) {
+        if (isOSM) {
+            this.id = Long.parseLong( OSM.extractStringFromVal(line, "id"));
+            this.x =  Double.parseDouble( OSM.extractStringFromVal(line, "lon"));
+            this.y =  Double.parseDouble( OSM.extractStringFromVal(line, "lat"));
+        }
+    }
+    
+    public boolean isVisited(){ //return whether the point has been visited or not
+    	return hasVisited;
+    }
+    
+    public void setIsVisted(boolean visited){
+    	hasVisited= visited;
+    }
+    
+    public ArrayList<Segment> getListOfEdges(){ //return the list of segments that intersect with a given point
+    	return edges;
+    }
+    
+    public void setListOfEdges(ArrayList<Segment> edges){
+    	this.edges=edges;
+    }
+    
+    public ArrayList<Point> getNeighborPoints(){  //return the list of points that neighbors for a given point
+    	return neighborPoints;
+    }
+    
+    public void setNeighborPoints(Point p){
+    	neighborPoints.add(p);
+    }
+    
+    public double distance(double lon, double lat){ // return the distance between this point and another point defined by lon,lat
+    	return Math.sqrt(Math.pow(lat - this.Ys(), 2) + Math.pow(lon - this.Xs(), 2));
+    }
 
-	public double getArea() {
-		return 0;
-	}
+    public String toString() {
+        return "P " + id + " " + Xs() + " " + Ys();
+    }
+    
+    public void draw() {
+        StdDraw.filledRectangle(Xs(), Ys(), 0.01, 0.01);
+    }
 
-	public int getId() {
-		return id;
-	}
+    public void drawDot() {
+        StdDraw.filledCircle(Xs(), Ys(), 0.005);
+    }
 
-	public double getX() {
-		return x;
-	}
+    public double getArea() {
+        return 0;
+    }
 
-	public double getY() {
-		return y;
-	}
-
-	public String toString() {
-		return x + " " + y; //for some reason you had a plus sign before the x
-	}
+    public void dump() {
+        System.out.printf("p[%ld] = (%f,%f) => (%f,%f)\n", id, 
+                Xr(), Yr(), Xs(), Ys());
+    }
 }
