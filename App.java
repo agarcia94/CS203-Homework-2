@@ -21,11 +21,14 @@ public class App {
 		try {
 			File file = new File(roadFilename);
 			roadNetwork = new RoadNetwork(file, isOSM);
-			roadNetwork.draw();
-	        
-			Point startPoint= roadNetwork.findNearestPoint(x1, y1);  //find the nearest point to the point defined by x1,y1
+			
+	        Point startPoint= roadNetwork.findNearestPoint(x1, y1);  //find the nearest point to the point defined by x1,y1
 			Point endPoint= roadNetwork.findNearestPoint(x2, y2); // find the nearest point to the points defined by x2,y2
 			roadNetwork.bfs(startPoint, endPoint);  //try to find the route from start to end, using breadth-first search
+//			for(Point points: roadNetwork.allPoints.values()){
+//				points.draw();
+//			}
+			roadNetwork.draw();
 			
 			
 			
